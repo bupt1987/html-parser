@@ -29,5 +29,93 @@ foreach ($p_array as $p){
 }
 echo $div->getPlainText();
 echo $p1->getPlainText();
+echo $pi->class;
 ?>
 ~~~
+
+基础用法
+================================================================================
+~~~
+// 查找所有a标签
+$ret = $html->find('a');
+
+// 查找a标签的第一个元素
+$ret = $html->find('a', 0);
+
+// 查找a标签的倒数第一个元素
+$ret = $html->find('a', -1); 
+
+// 查找所有含有id属性的div标签
+$ret = $html->find('div[id]');
+
+// 查找所有含有id属性为foo的div标签
+$ret = $html->find('div[id=foo]'); 
+~~~
+
+高级用法
+================================================================================
+~~~
+// 查找所有id=foo的元素
+$ret = $html->find('#foo');
+
+// 查找所有class=foo的元素
+$ret = $html->find('.foo');
+
+// 查找所有拥有 id属性的元素
+$ret = $html->find('*[id]'); 
+
+// 查找所有 anchors 和 images标记 
+$ret = $html->find('a, img'); 
+
+// 查找所有有"title"属性的anchors and images 
+$ret = $html->find('a[title], img[title]');
+~~~
+
+层级选择器
+================================================================================
+~~~
+// Find all <li> in <ul> 
+$es = $html->find('ul li');
+
+// Find Nested <div> tags
+$es = $html->find('div div div'); 
+
+// Find all <td> in <table> which class=hello 
+$es = $html->find('table.hello td');
+
+// Find all td tags with attribite align=center in table tags 
+$es = $html->find('table td[align=center]'); 
+~~~
+
+嵌套选择器
+================================================================================
+~~~
+// Find all <li> in <ul> 
+foreach($html->find('ul') as $ul) 
+{
+       foreach($ul->find('li') as $li) 
+       {
+             // do something...
+       }
+}
+
+// Find first <li> in first <ul> 
+$e = $html->find('ul', 0)->find('li', 0);
+~~~
+
+属性过滤
+================================================================================
+~~~
+支持属性选择器操作:
+
+过滤	描述
+[attribute]	匹配具有指定属性的元素.
+[!attribute]	匹配不具有指定属性的元素。
+[attribute=value]	匹配具有指定属性值的元素
+[attribute!=value]	匹配不具有指定属性值的元素
+[attribute^=value]	匹配具有指定属性值开始的元素
+[attribute$=value]	匹配具有指定属性值结束的元素
+[attribute*=value]	匹配具有指定属性的元素,且该属性包含了一定的值
+~~~
+
+
