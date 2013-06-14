@@ -6,7 +6,7 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 
 例子
 ================================================================================
-<?php 
+
 $html = '<html>
   <head>
     <title>test</title>
@@ -28,4 +28,3 @@ foreach ($p_array as $p){
 }
 echo $div->getPlainText();
 echo $p1->getPlainText();
-?>
