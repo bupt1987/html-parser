@@ -1,5 +1,7 @@
 <?php
 /**
+ * Copyright (c) 2013, 俊杰Jerry
+ * All rights reserved.
  * @description: html解析器
  * @author: 俊杰Jerry<bupt1987@gmail.com>
  * @date: 2013-6-10
@@ -8,8 +10,6 @@
 class HtmlParserModel {
 	
 	private $tidy_node;
-	private $default_span_text = ' ';
-	private $default_html_blank = '&nbsp;';
 	
 	public function __construct($tidy_node = null){
 		if(!function_exists('tidy_parse_string')){
@@ -60,6 +60,15 @@ class HtmlParserModel {
 			return false;
 		}
 		$found = array();
+		//初始化parent
+		if(!empty($this->tidy_node->child)){
+			foreach ( $this->tidy_node->child as $key => $val ) {
+				$val->parent = $this->tidy_node;
+				$this->tidy_node->child [$key] = $val;
+			}
+		}else{
+			return false;
+		}
 		for($c = 0; $c < $count; $c ++) {
 			if (($levle = count ( $selectors [$c] )) === 0){
 				return false;
@@ -69,7 +78,11 @@ class HtmlParserModel {
 				$temp = array();
 				foreach ($need_to_search as $node){
 				    if(!empty($node->child)){
-					    $temp = array_merge($temp, $node->child);
+				    	foreach ($node->child as $key => $val){
+				    		$val->parent = $node;
+				    		$node->child[$key] = $val;
+				    		$temp[] = $val;
+				    	}
 				    }
 				}
 				$need_to_search = $temp;
@@ -88,7 +101,11 @@ class HtmlParserModel {
 					}
 					array_shift($need_to_search);
 					if(!empty($search->child)){
-						$need_to_search = array_merge($need_to_search,$search->child);
+						foreach ($search->child as $key => $val){
+							$val->parent = $search;
+							$search->child[$key] = $val;
+							array_push($need_to_search, $val);
+						}
 					}
 				}
 			}
@@ -126,7 +143,7 @@ class HtmlParserModel {
 		$tidy_node->plaintext = '';
 		switch ($tidy_node->type) {
 			case TIDY_NODETYPE_TEXT :
-				$tidy_node->plaintext = str_replace($this->default_html_blank, ' ', $tidy_node->value);;
+				$tidy_node->plaintext = str_replace(array("\r","\r\n","\n",'&nbsp;'), ' ', $tidy_node->value);
 				return $tidy_node->plaintext;
 			case TIDY_NODETYPE_COMMENT :
 				return $tidy_node->plaintext;
@@ -141,8 +158,8 @@ class HtmlParserModel {
 			foreach ( $tidy_node->child as $key => $n ) {
 				$tidy_node->plaintext .= $this->text($n);
 			}
-			if ($this->name == 'span') {
-				$tidy_node->plaintext .= $this->default_span_text;
+			if ($tidy_node->name == 'span') {
+				$tidy_node->plaintext .= ' ';
 			}
 		}
 		return $tidy_node->plaintext;
@@ -150,7 +167,6 @@ class HtmlParserModel {
 	
 	/**
 	 * 匹配节点,由于采取的倒序查找，所以时间复杂度为n+m*l n为总节点数，m为匹配最后一个规则的个数，l为规则的深度, 
-	 * 但是其中查询的主要时间在getParent,所以减少规则深度会大大减少时间
 	 * @param tidyNode $search
 	 * @param array $selectors
 	 * @param int $current
@@ -201,13 +217,26 @@ class HtmlParserModel {
 		    $current --;
 		    if($current < 0){
 		        return $search;
-		    }elseif($this->seek ( $search->getParent(), $selectors,  $current)) {
+		    }elseif($this->seek ( $this->getParent($search), $selectors,  $current)) {
 				return $search;
 			} else {
 				return false;
 			}
 		} else {
 			return false;
+		}
+	}
+	
+	/**
+	 * 获取父亲节点
+	 * @param tidyNode $node
+	 * @return tidyNode
+	 */
+	private function getParent(tidyNode $node){
+		if(isset($node->parent)){
+			return $node->parent;
+		}else{
+			return $node->getParent();
 		}
 	}
 	
@@ -245,7 +274,7 @@ class HtmlParserModel {
 	 * @return array
 	 */
 	private function parse_selector($selector_string) {
-		$pattern = "/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-:]+)(?:([!*^$]?=)[\"']?(.*?)[\"']?)?\])?([\/, ]+)/is";
+		$pattern = '/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-:]+)(?:([!*^$]?=)["\']?(.*?)["\']?)?\])?([\/, ]+)/is';
 		preg_match_all ( $pattern, trim ( $selector_string ) . ' ', $matches, PREG_SET_ORDER );
 		$selectors = array ();
 		$result = array ();
