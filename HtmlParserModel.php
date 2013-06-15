@@ -10,7 +10,6 @@
 class HtmlParserModel {
 	
 	private $tidy_node;
-	private $find_rs = array();
 	
 	public function __construct($tidy_node = null){
 		if(!function_exists('tidy_parse_string')){
@@ -47,7 +46,7 @@ class HtmlParserModel {
 	}
 	
 	/**
-	 * 广度优先查询
+	 * 查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
 	 * @return multitype:|HtmlParserModel|multitype:array
@@ -62,39 +61,53 @@ class HtmlParserModel {
 		}
 		$found = array();
 		//初始化parent
-		$need_to_search = $this->tidy_node->child;
+		if(!empty($this->tidy_node->child)){
+			foreach ( $this->tidy_node->child as $key => $val ) {
+				$val->parent = $this->tidy_node;
+				$this->tidy_node->child [$key] = $val;
+			}
+		}else{
+			return false;
+		}
 		for($c = 0; $c < $count; $c ++) {
-			if (($level = count ( $selectors [$c] )) === 0){
+			if (($levle = count ( $selectors [$c] )) === 0){
 				return false;
 			}
-			$search_levle = 0;
-			while (!empty($need_to_search)){
+			$need_to_search = $this->tidy_node->child;
+			for($i = $levle; $i > 1; $i --){
 				$temp = array();
+				foreach ($need_to_search as $node){
+				    if(!empty($node->child)){
+				    	foreach ($node->child as $key => $val){
+				    		$val->parent = $node;
+				    		$node->child[$key] = $val;
+				    		$temp[] = $val;
+				    	}
+				    }
+				}
+				$need_to_search = $temp;
+			}
+			while (!empty($need_to_search)){
 				foreach ($need_to_search as $search){
-					if($search_levle >= $level){
-						$rs = $this->seek ($search, $selectors [$c], $level - 1 );
-						if($rs !== false && $idx !== null){
-							if($idx == count($found)){
-								return new HtmlParserModel($rs);
-							}else{
-								$found[] = new HtmlParserModel($rs);
-							}
-						}elseif($rs !== false){
+					$rs = $this->seek ($search, $selectors [$c], $levle - 1 );
+					if($rs !== false && $idx !== null){
+						if($idx == count($found)){
+							return new HtmlParserModel($rs);
+						}else{
 							$found[] = new HtmlParserModel($rs);
 						}
+					}elseif($rs !== false){
+						$found[] = new HtmlParserModel($rs);
 					}
-					$temp[] = $search;
 					array_shift($need_to_search);
-				}
-				foreach ($temp as $temp_val){
-					if(!empty($temp_val->child)){
-						foreach ($temp_val->child as $key => $val){
-							$temp_val->child[$key]->parent = $temp_val;
-							$need_to_search[] = $temp_val->child[$key];
+					if(!empty($search->child)){
+						foreach ($search->child as $key => $val){
+							$val->parent = $search;
+							$search->child[$key] = $val;
+							array_push($need_to_search, $val);
 						}
 					}
 				}
-				$search_levle++;
 			}
 		}
 		if($idx !== null){
@@ -110,83 +123,12 @@ class HtmlParserModel {
 		return $found;
 	}
 	
-	
-	/**
-	 * 深度优先查询
-	 * @param string $selector
-	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParserModel|multitype:array
-	 */
-	public function find2($selector, $idx = null){
-		if(empty($this->tidy_node->child)){
-			return false;
-		}
-		$selectors = $this->parse_selector ( $selector );
-		if (($count = count ( $selectors )) === 0){
-			return false;
-		}
-		for($c = 0; $c < $count; $c ++) {
-			if (($level = count ( $selectors [$c] )) === 0){
-				return false;
-			}
-			$this->search($this->tidy_node, $idx, $selectors [$c], $level);
-		}
-		$found = $this->find_rs;
-		$this->find_rs = array();
-		if($idx !== null){
-			if($idx < 0){
-				$idx = count($found) + $idx;
-			}
-			if(isset($found[$idx])){
-				return $found[$idx];
-			}else{
-				return false;
-			}
-		}
-		return $found;
-	}
-	
 	/**
 	 * 返回文本信息
 	 * @return Ambigous <string, mixed, string>
 	 */
 	public function getPlainText(){
 		return $this->text($this->tidy_node);
-	}
-	
-	/**
-	 * 深度查询
-	 * @param tidyNode $search
-	 * @param number|null $idx
-	 * @param array $selectors
-	 * @param number $level
-	 * @param number $search_levle
-	 * @return boolean
-	 */
-	private function search(&$search, $idx, $selectors, $level, $search_levle = 0){
-		if($search_levle >= $level){
-			$rs = $this->seek ($search, $selectors , $level - 1 );
-			if($rs !== false && $idx !== null){
-				if($idx == count($this->find_rs)){
-					$this->find_rs[] = new HtmlParserModel($rs);
-					return true;
-				}else{
-					$this->find_rs[] = new HtmlParserModel($rs);
-				}
-			}elseif($rs !== false){
-				$this->find_rs[] = new HtmlParserModel($rs);
-			}
-		}
-		if(!empty($search->child)){
-			foreach ($search->child as $key => $val){
-				$search->child[$key]->parent = $search;
-				if($this->search($search->child[$key], $idx, $selectors, $level, $search_levle + 1)){
-					return true;
-				}
-			}
-		}else{
-			return false;
-		}
 	}
 	
 	/**
