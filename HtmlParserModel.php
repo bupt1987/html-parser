@@ -67,11 +67,11 @@ class HtmlParserModel {
 			if (($level = count ( $selectors [$c] )) === 0){
 				return false;
 			}
-			$search_levle = 0;
+			$search_level = 1;
 			while (!empty($need_to_search)){
 				$temp = array();
 				foreach ($need_to_search as $search){
-					if($search_levle >= $level){
+					if($search_level >= $level){
 						$rs = $this->seek ($search, $selectors [$c], $level - 1 );
 						if($rs !== false && $idx !== null){
 							if($idx == count($found)){
@@ -94,7 +94,7 @@ class HtmlParserModel {
 						}
 					}
 				}
-				$search_levle++;
+				$search_level++;
 			}
 		}
 		if($idx !== null){
