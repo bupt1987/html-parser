@@ -20,8 +20,8 @@ class HtmlParserModel {
 	}
 	
 	public function __get($name){
-		if(isset($this->tidy->attribute [$name])){
-			return $this->tidy->attribute [$name];
+		if(isset($this->tidy_node->attribute [$name])){
+			return $this->tidy_node->attribute [$name];
 		}
 		return false;
 	}
