@@ -7,21 +7,30 @@
  * @date: 2013-6-10
  * @version: 1.0
  */
-class HtmlParserModel {
+class HtmlParser {
 	
-	private $tidy_node;
+	private $tidy_node = null;
 	private $find_rs = array();
 	
 	public function __construct($tidy_node = null){
 		if(!function_exists('tidy_parse_string')){
-			throw new Exception('tidy模块未加载', 92000);
+			throw new BaseModelException('tidy模块未加载', 92000);
 		}
-		$this->tidy_node = $tidy_node;
+		if($tidy_node !== null){
+		    if($tidy_node instanceof tidyNode){
+		        $this->tidy_node = $tidy_node;
+		    }else{
+		       $this->parseStr($tidy_node); 
+		    }
+		}
 	}
 	
 	public function __get($name){
 		if(isset($this->tidy_node->attribute [$name])){
 			return $this->tidy_node->attribute [$name];
+		}
+		if(isset($this->tidy_node->$name)){
+		    return $this->tidy_node->$name;
 		}
 		return false;
 	}
@@ -33,6 +42,7 @@ class HtmlParserModel {
 	 * @param string $encoding
 	 */
 	public function parseStr($str, $config_options = array(), $encoding = 'utf8'){
+		defined('DAGGER_DEBUG') && $start_time = microtime(true);
 		$str = $this->remove_html ( $str, "'<!--(.*?)-->'is" );
 // 		$str = $this->remove_html ( $str, "'<!\[CDATA\[(.*?)\]\]>'is" );
 		$str = $this->remove_html ( $str, "'<\s*script[^>]*[^/]>(.*?)<\s*/\s*script\s*>'is" );
@@ -44,13 +54,14 @@ class HtmlParserModel {
  		$str = $this->remove_html ( $str, "'(\{\w)(.*?)(\})'s" );*/
 		$tidy = tidy_parse_string($str, $config_options, $encoding);
 		$this->tidy_node = tidy_get_html($tidy);
+		defined('DAGGER_DEBUG') && BaseModelCommon::debug((round(microtime(true) - $start_time, 6) * 1000) . 'ms', 'html_parser_time');
 	}
 	
 	/**
 	 * 广度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParserModel|multitype:array
+	 * @return multitype:|HtmlParser|multitype:array
 	 */
 	public function find($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -75,12 +86,12 @@ class HtmlParserModel {
 						$rs = $this->seek ($search, $selectors [$c], $level - 1 );
 						if($rs !== false && $idx !== null){
 							if($idx == count($found)){
-								return new HtmlParserModel($rs);
+								return new HtmlParser($rs);
 							}else{
-								$found[] = new HtmlParserModel($rs);
+								$found[] = new HtmlParser($rs);
 							}
 						}elseif($rs !== false){
-							$found[] = new HtmlParserModel($rs);
+							$found[] = new HtmlParser($rs);
 						}
 					}
 					$temp[] = $search;
@@ -115,7 +126,7 @@ class HtmlParserModel {
 	 * 深度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParserModel|multitype:array
+	 * @return multitype:|HtmlParser|multitype:array
 	 */
 	public function find2($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -168,13 +179,13 @@ class HtmlParserModel {
 			$rs = $this->seek ($search, $selectors , $level - 1 );
 			if($rs !== false && $idx !== null){
 				if($idx == count($this->find_rs)){
-					$this->find_rs[] = new HtmlParserModel($rs);
+					$this->find_rs[] = new HtmlParser($rs);
 					return true;
 				}else{
-					$this->find_rs[] = new HtmlParserModel($rs);
+					$this->find_rs[] = new HtmlParser($rs);
 				}
 			}elseif($rs !== false){
-				$this->find_rs[] = new HtmlParserModel($rs);
+				$this->find_rs[] = new HtmlParser($rs);
 			}
 		}
 		if(!empty($search->child)){
@@ -234,7 +245,7 @@ class HtmlParserModel {
 		list ( $tag, $key, $val, $exp, $no_key ) = $selectors [$current];
 		$pass = true;
 		if ($tag === '*' && !$key) {
-			throw new Exception('tag为*时，key不能为空', 92000);
+			throw new BaseModelException('tag为*时，key不能为空', 92000);
 		}
 		if ($tag && $tag != $search->name && $tag !== '*') {
 			$pass = false;
