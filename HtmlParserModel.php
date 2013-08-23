@@ -14,7 +14,9 @@ class HtmlParserModel {
 	
 	public function __construct($tidy_node = null){
 		if(!function_exists('tidy_parse_string')){
-			throw new BaseModelException('tidy模块未加载', 92000);
+			exit('tidy模块未加载');
+			//此处使用dagger框架
+			//throw new BaseModelException('tidy模块未加载', 92000);
 		}
 		if($tidy_node !== null){
 		    if($tidy_node instanceof tidyNode){
@@ -42,7 +44,8 @@ class HtmlParserModel {
 	 * @param string $encoding
 	 */
 	public function parseStr($str, $config_options = array(), $encoding = 'utf8'){
-		defined('DAGGER_DEBUG') && $start_time = microtime(true);
+		//此处使用dagger框架
+		//defined('DAGGER_DEBUG') && $start_time = microtime(true);
 		$str = $this->remove_html ( $str, "'<!--(.*?)-->'is" );
 // 		$str = $this->remove_html ( $str, "'<!\[CDATA\[(.*?)\]\]>'is" );
 		$str = $this->remove_html ( $str, "'<\s*script[^>]*[^/]>(.*?)<\s*/\s*script\s*>'is" );
@@ -54,7 +57,8 @@ class HtmlParserModel {
  		$str = $this->remove_html ( $str, "'(\{\w)(.*?)(\})'s" );*/
 		$tidy = tidy_parse_string($str, $config_options, $encoding);
 		$this->tidy_node = tidy_get_html($tidy);
-		defined('DAGGER_DEBUG') && BaseModelCommon::debug((round(microtime(true) - $start_time, 6) * 1000) . 'ms', 'html_parser_time');
+		//此处使用dagger框架
+		//defined('DAGGER_DEBUG') && BaseModelCommon::debug((round(microtime(true) - $start_time, 6) * 1000) . 'ms', 'html_parser_time');
 	}
 	
 	/**
@@ -245,7 +249,9 @@ class HtmlParserModel {
 		list ( $tag, $key, $val, $exp, $no_key ) = $selectors [$current];
 		$pass = true;
 		if ($tag === '*' && !$key) {
-			throw new BaseModelException('tag为*时，key不能为空', 92000);
+			exit('tag为*时，key不能为空');
+			//此处使用dagger框架
+			//throw new BaseModelException('tag为*时，key不能为空', 92000);
 		}
 		if ($tag && $tag != $search->name && $tag !== '*') {
 			$pass = false;
