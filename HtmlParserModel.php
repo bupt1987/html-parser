@@ -7,7 +7,7 @@
  * @date: 2013-6-10
  * @version: 1.0
  */
-class HtmlParser {
+class HtmlParserModel {
 	
 	private $tidy_node = null;
 	private $find_rs = array();
@@ -61,7 +61,7 @@ class HtmlParser {
 	 * 广度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParser|multitype:array
+	 * @return multitype:|HtmlParserModel|multitype:array
 	 */
 	public function find($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -86,12 +86,12 @@ class HtmlParser {
 						$rs = $this->seek ($search, $selectors [$c], $level - 1 );
 						if($rs !== false && $idx !== null){
 							if($idx == count($found)){
-								return new HtmlParser($rs);
+								return new HtmlParserModel($rs);
 							}else{
-								$found[] = new HtmlParser($rs);
+								$found[] = new HtmlParserModel($rs);
 							}
 						}elseif($rs !== false){
-							$found[] = new HtmlParser($rs);
+							$found[] = new HtmlParserModel($rs);
 						}
 					}
 					$temp[] = $search;
@@ -126,7 +126,7 @@ class HtmlParser {
 	 * 深度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParser|multitype:array
+	 * @return multitype:|HtmlParserModel|multitype:array
 	 */
 	public function find2($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -179,13 +179,13 @@ class HtmlParser {
 			$rs = $this->seek ($search, $selectors , $level - 1 );
 			if($rs !== false && $idx !== null){
 				if($idx == count($this->find_rs)){
-					$this->find_rs[] = new HtmlParser($rs);
+					$this->find_rs[] = new HtmlParserModel($rs);
 					return true;
 				}else{
-					$this->find_rs[] = new HtmlParser($rs);
+					$this->find_rs[] = new HtmlParserModel($rs);
 				}
 			}elseif($rs !== false){
-				$this->find_rs[] = new HtmlParser($rs);
+				$this->find_rs[] = new HtmlParserModel($rs);
 			}
 		}
 		if(!empty($search->child)){
