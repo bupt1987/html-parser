@@ -21,8 +21,9 @@ $html = '<html>
     <div id="test1">测试1</div>
   </body>
 </html>';
-$html_dom = new HtmlParserModel();
-$html_dom->parseStr($html);
+//现在支持直接输入html字符串了
+$html_dom = new HtmlParserModel($html);
+//$html_dom->parseStr($html);
 $p_array = $html_dom->find('p.test_class');
 $p1 = $html_dom->find('p.test_class1',0);
 $div = $html_dom->find('div#test1',0);
