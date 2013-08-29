@@ -76,12 +76,11 @@ class HtmlParserModel {
 			return false;
 		}
 		$found = array();
-		//初始化parent
-		$need_to_search = $this->tidy_node->child;
 		for($c = 0; $c < $count; $c ++) {
 			if (($level = count ( $selectors [$c] )) === 0){
 				return false;
 			}
+			$need_to_search = $this->tidy_node->child;
 			$search_level = 1;
 			while (!empty($need_to_search)){
 				$temp = array();
