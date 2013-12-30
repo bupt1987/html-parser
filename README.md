@@ -32,7 +32,7 @@ foreach ($p_array as $p){
 }
 echo $div->getPlainText();
 echo $p1->getPlainText();
-echo $pi->class;
+echo $p1->class;
 ?>
 ~~~
 
