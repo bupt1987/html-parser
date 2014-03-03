@@ -12,6 +12,7 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 <?php
 $html = '<html>
   <head>
+    <meta charset="utf-8">
     <title>test</title>
   </head>
   <body>
