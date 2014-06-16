@@ -27,6 +27,10 @@ class HtmlParserModel {
 		}
 	}
 	
+	public function __destruct(){
+		$this->clearNode($this->tidy_node);
+	}
+	
 	public function __get($name){
 		if(isset($this->tidy_node->attribute [$name])){
 			return $this->tidy_node->attribute [$name];
@@ -408,6 +412,20 @@ class HtmlParserModel {
 			$str = substr_replace ( $str, '', $matches [$i] [0] [1], strlen ( $matches [$i] [0] [0] ) );
 		}
 		return $str;
+	}
+	
+	/**
+	 * 释放内存
+	 * @param $tidyNode
+	 */
+	private function clearNode(&$tidyNode) {
+		if(!empty($tidyNode->child)) {
+			foreach($tidyNode->child as $child) {
+				self::clearNode($child);
+			}
+		}
+		$tidyNode = null;
+		unset($tidyNode);
 	}
 	
 }
