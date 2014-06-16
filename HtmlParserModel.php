@@ -421,10 +421,9 @@ class HtmlParserModel {
 	private function clearNode(&$tidyNode) {
 		if(!empty($tidyNode->child)) {
 			foreach($tidyNode->child as $child) {
-				self::clearNode($child);
+				$this->clearNode($child);
 			}
 		}
-		$tidyNode = null;
 		unset($tidyNode);
 	}
 	
