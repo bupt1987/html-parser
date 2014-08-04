@@ -8,10 +8,13 @@
  * @version: 1.0
  */
 class HtmlParserModel {
-	
+
 	private $tidy_node = null;
 	private $find_rs = array();
-	
+
+	/**
+	 * @param tidyNode|string $tidy_node
+	 */
 	public function __construct($tidy_node = null){
 		if(!function_exists('tidy_parse_string')){
 			exit('tidy模块未加载');
@@ -19,32 +22,32 @@ class HtmlParserModel {
 			//throw new BaseModelException('tidy模块未加载', 92000);
 		}
 		if($tidy_node !== null){
-		    if($tidy_node instanceof tidyNode){
-		        $this->tidy_node = $tidy_node;
-		    }else{
-		       $this->parseStr($tidy_node); 
-		    }
+			if($tidy_node instanceof tidyNode){
+				$this->tidy_node = $tidy_node;
+			}else{
+				$this->parseStr($tidy_node);
+			}
 		}
 	}
-	
+
 	public function __destruct(){
 		$this->clearNode($this->tidy_node);
 	}
-	
+
 	public function __get($name){
 		if(isset($this->tidy_node->attribute [$name])){
 			return $this->tidy_node->attribute [$name];
 		}
 		if(isset($this->tidy_node->$name)){
-		    return $this->tidy_node->$name;
+			return $this->tidy_node->$name;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 使用tidy解析html
-	 * @param string $str
-	 * @param array $option
+	 * @param $str
+	 * @param array $config_options
 	 * @param string $encoding
 	 */
 	public function parseStr($str, $config_options = array(), $encoding = 'utf8'){
@@ -57,19 +60,20 @@ class HtmlParserModel {
 		$str = $this->remove_html ( $str, "'<\s*style[^>]*[^/]>(.*?)<\s*/\s*style\s*>'is" );
 		$str = $this->remove_html ( $str, "'<\s*style\s*>(.*?)<\s*/\s*style\s*>'is" );
 // 		$str = $this->remove_html ( $str, "'<\s*(?:code)[^>]*>(.*?)<\s*/\s*(?:code)\s*>'is" );
-/* 		$str = $this->remove_html ( $str, "'(<\?)(.*?)(\?>)'s" );
- 		$str = $this->remove_html ( $str, "'(\{\w)(.*?)(\})'s" );*/
-		$tidy = tidy_parse_string($str, $config_options, $encoding);
-		$this->tidy_node = tidy_get_html($tidy);
+		/* 		$str = $this->remove_html ( $str, "'(<\?)(.*?)(\?>)'s" );
+				 $str = $this->remove_html ( $str, "'(\{\w)(.*?)(\})'s" );*/
+		$tidy = new tidy();
+		$tidy->parseString($str, $config_options, $encoding);
+		$this->tidy_node = $tidy->html();
 		//此处使用dagger框架
 		//defined('DAGGER_DEBUG') && BaseModelCommon::debug((round(microtime(true) - $start_time, 6) * 1000) . 'ms', 'html_parser_time');
 	}
-	
+
 	/**
 	 * 广度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParserModel|multitype:array
+	 * @return HtmlParserModel|array
 	 */
 	public function find($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -116,9 +120,9 @@ class HtmlParserModel {
 			}
 		}
 		if($idx !== null){
-		    if($idx < 0){
-		        $idx = count($found) + $idx;
-		    }
+			if($idx < 0){
+				$idx = count($found) + $idx;
+			}
 			if(isset($found[$idx])){
 				return $found[$idx];
 			}else{
@@ -127,13 +131,13 @@ class HtmlParserModel {
 		}
 		return $found;
 	}
-	
-	
+
+
 	/**
 	 * 深度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return multitype:|HtmlParserModel|multitype:array
+	 * @return HtmlParserModel|array
 	 */
 	public function find2($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -163,23 +167,23 @@ class HtmlParserModel {
 		}
 		return $found;
 	}
-	
+
 	/**
 	 * 返回文本信息
-	 * @return Ambigous <string, mixed, string>
+	 * @return string, mixed
 	 */
 	public function getPlainText(){
 		return $this->text($this->tidy_node);
 	}
-	
+
 	/**
 	 * 深度查询
-	 * @param tidyNode $search
-	 * @param number|null $idx
-	 * @param array $selectors
-	 * @param number $level
-	 * @param number $search_levle
-	 * @return boolean
+	 * @param $search
+	 * @param $idx
+	 * @param $selectors
+	 * @param $level
+	 * @param int $search_levle
+	 * @return bool
 	 */
 	private function search(&$search, $idx, $selectors, $level, $search_levle = 0){
 		if($search_levle >= $level){
@@ -206,11 +210,11 @@ class HtmlParserModel {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 获取tidy_node文本
 	 * @param tidyNode $tidy_node
-	 * @return mixed|string|Ambigous <string, mixed, string>
+	 * @return mixed|string| <string, mixed, string>
 	 */
 	private function text(&$tidy_node){
 		if(isset($tidy_node->plaintext)){
@@ -231,7 +235,7 @@ class HtmlParserModel {
 			return $tidy_node->plaintext;
 		}
 		if (!empty( $tidy_node->child )) {
-			foreach ( $tidy_node->child as $key => $n ) {
+			foreach ( $tidy_node->child as $n ) {
 				$tidy_node->plaintext .= $this->text($n);
 			}
 			if ($tidy_node->name == 'span') {
@@ -240,9 +244,9 @@ class HtmlParserModel {
 		}
 		return $tidy_node->plaintext;
 	}
-	
+
 	/**
-	 * 匹配节点,由于采取的倒序查找，所以时间复杂度为n+m*l n为总节点数，m为匹配最后一个规则的个数，l为规则的深度, 
+	 * 匹配节点,由于采取的倒序查找，所以时间复杂度为n+m*l n为总节点数，m为匹配最后一个规则的个数，l为规则的深度,
 	 * @param tidyNode $search
 	 * @param array $selectors
 	 * @param int $current
@@ -292,10 +296,10 @@ class HtmlParserModel {
 			}
 		}
 		if ($pass) {
-		    $current --;
-		    if($current < 0){
-		        return $search;
-		    }elseif($this->seek ( $this->getParent($search), $selectors,  $current)) {
+			$current --;
+			if($current < 0){
+				return $search;
+			}elseif($this->seek ( $this->getParent($search), $selectors,  $current)) {
 				return $search;
 			} else {
 				return false;
@@ -304,7 +308,7 @@ class HtmlParserModel {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 获取父亲节点
 	 * @param tidyNode $node
@@ -317,7 +321,7 @@ class HtmlParserModel {
 			return $node->getParent();
 		}
 	}
-	
+
 	/**
 	 * 匹配
 	 * @param string $exp
@@ -345,7 +349,7 @@ class HtmlParserModel {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 分析查询语句
 	 * @param string $selector_string
@@ -399,12 +403,12 @@ class HtmlParserModel {
 		}
 		return $selectors;
 	}
-	
+
 	/**
 	 * 删除不用的html代码
-	 * @param string $str
-	 * @param string $pattern
-	 * @param bool $remove_tag
+	 * @param $str
+	 * @param $pattern
+	 * @return mixed
 	 */
 	private function remove_html($str, $pattern) {
 		$count = preg_match_all ( $pattern, $str, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE );
@@ -413,7 +417,7 @@ class HtmlParserModel {
 		}
 		return $str;
 	}
-	
+
 	/**
 	 * 释放内存
 	 * @param $tidyNode
@@ -426,7 +430,7 @@ class HtmlParserModel {
 		}
 		unset($tidyNode);
 	}
-	
+
 }
 
 ?>
