@@ -16,6 +16,8 @@
 		"ext-tidy": "*"
 	},
 	"autoload": {
-		"classmap": ["lib/"]		
+		"psr-4": {
+				"HtmlParser\\": "src/"
+		}
 	}
 }
