@@ -1,5 +1,8 @@
 <?php
 namespace HtmlParser;
+
+use tidyNode;
+use tidy;
 /**
  * Copyright (c) 2013, 俊杰Jerry
  * All rights reserved.
