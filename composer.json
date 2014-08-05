@@ -1,0 +1,17 @@
+{
+	"name": "zhaidaosi/HtmlParser",
+	"license": "MIT",
+	"description": "Html Parser",
+	"homepage": "https://github.com/bupt1987/HtmlParser",
+	"authors": [
+		{
+			"name": "俊杰jerry",
+			"email": "bupt1987@gmail.com",
+			"homepage": "http://zhaidaosi.com",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0"
+	},
+}
