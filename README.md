@@ -14,7 +14,7 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 ##### *Example*
 ~~~
 <?php
-use HtmlParser;
+use HtmlParser\Parser;
 $html = '<html>
   <head>
     <meta charset="utf-8">
