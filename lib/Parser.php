@@ -201,9 +201,8 @@ class Parser {
 					return true;
 				}
 			}
-		}else{
-			return false;
 		}
+		return false;
 	}
 
 	/**
