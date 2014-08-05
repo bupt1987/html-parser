@@ -14,5 +14,11 @@
 	"require": {
 		"php": ">=5.4.0",
 		"ext-tidy": "*"
-	}
+	},
+	"autoload": {
+		"psr-0": {
+			"HtmlParser": "lib/"
+		}
+		
+	},
 }
