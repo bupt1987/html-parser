@@ -14,6 +14,7 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 ##### *Example*
 ~~~
 <?php
+use HtmlParser;
 $html = '<html>
   <head>
     <meta charset="utf-8">
@@ -27,7 +28,7 @@ $html = '<html>
   </body>
 </html>';
 //现在支持直接输入html字符串了
-$html_dom = new HtmlParserModel($html);
+$html_dom = new Parser($html);
 //$html_dom->parseStr($html);
 $p_array = $html_dom->find('p.test_class');
 $p1 = $html_dom->find('p.test_class1',0);
