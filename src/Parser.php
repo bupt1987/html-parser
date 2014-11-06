@@ -173,6 +173,14 @@ class Parser {
 	public function getPlainText(){
 		return $this->text($this->tidy_node);
 	}
+	
+	/**
+	 * 获取html的元属值
+	 * @return string|bool
+	 */
+	public function getAttr($name) {
+		return isset($this->tidy_node->attribute [$name]) ? $this->tidy_node->attribute [$name] : false;
+	}
 
 	/**
 	 * 深度查询
