@@ -38,7 +38,7 @@ foreach ($p_array as $p){
 }
 echo $div->getPlainText();
 echo $p1->getPlainText();
-echo $p1->class;
+echo $p1->getAttr('class');
 ?>
 ~~~
 
