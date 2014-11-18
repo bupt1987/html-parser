@@ -71,7 +71,7 @@ class Parser {
 	 * 广度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return Parser|array
+	 * @return Parser|Parser[]
 	 */
 	public function find($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -135,7 +135,7 @@ class Parser {
 	 * 深度优先查询
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return Parser|array
+	 * @return Parser|Parser[]
 	 */
 	public function find2($selector, $idx = null){
 		if(empty($this->tidy_node->child)){
@@ -168,7 +168,7 @@ class Parser {
 
 	/**
 	 * 返回文本信息
-	 * @return string, mixed
+	 * @return string
 	 */
 	public function getPlainText(){
 		return $this->text($this->tidy_node);
@@ -176,10 +176,10 @@ class Parser {
 	
 	/**
 	 * 获取html的元属值
-	 * @return string|bool
+	 * @return string|null
 	 */
 	public function getAttr($name) {
-		return isset($this->tidy_node->attribute [$name]) ? $this->tidy_node->attribute [$name] : false;
+		return isset($this->tidy_node->attribute [$name]) ? $this->tidy_node->attribute [$name] : null;
 	}
 
 	/**
@@ -219,7 +219,7 @@ class Parser {
 	/**
 	 * 获取tidy_node文本
 	 * @param tidyNode $tidy_node
-	 * @return mixed|string| <string, mixed, string>
+	 * @return string
 	 */
 	private function text(&$tidy_node){
 		if(isset($tidy_node->plaintext)){
