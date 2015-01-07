@@ -12,12 +12,12 @@
 		}
 	],
 	"require": {
-		"php": ">=5.4.0",
+		"php": ">=5.3.2",
 		"ext-tidy": "*"
 	},
 	"autoload": {
 		"psr-4": {
-				"HtmlParser\\": "src/"
+			"HtmlParser\\": "src/"
 		}
 	}
 }
