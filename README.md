@@ -10,6 +10,9 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 
 "require": {"bupt1987/html-parser": "dev-master"}
 
+加载composer  
+require 'vendor/autoload.php';
+
 ================================================================================
 ##### *Example*
 ~~~
