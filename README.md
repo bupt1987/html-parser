@@ -18,6 +18,8 @@ require 'vendor/autoload.php';
 ~~~
 <?php
 use HtmlParser\Parser;
+require 'vendor/autoload.php';
+
 $html = '<html>
   <head>
     <meta charset="utf-8">
