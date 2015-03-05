@@ -23,7 +23,7 @@ class ParserTidy extends ParserAbstract {
 				$this->node = $node;
 			} else {
 				$tidy = new tidy();
-				$tidy->parseString($node, null, 'utf8');
+				$tidy->parseString($node, [], 'utf8');
 				$this->node = $tidy->html();
 			}
 		}
