@@ -1,6 +1,9 @@
 <?php
 namespace HtmlParser;
 
+use tidy;
+use tidyNode;
+
 /**
  * Copyright (c) 2013, 俊杰Jerry
  * All rights reserved.
@@ -9,27 +12,31 @@ namespace HtmlParser;
  * @author     : 俊杰Jerry<bupt1987@gmail.com>
  * @date       : 2013-6-10
  */
-class ParserDom extends ParserAbstract {
+class ParserTidy extends ParserAbstract {
 
 	/**
-	 * @param \DOMNode|string $node
-	 * @throws \Exception
+	 * @param tidyNode|string $node
 	 */
 	public function __construct($node = null) {
 		if ($node !== null) {
-			if ($node instanceof \DOMNode) {
+			if ($node instanceof tidyNode) {
 				$this->node = $node;
 			} else {
-				$dom = new \DOMDocument();
-				$dom->preserveWhiteSpace = false;
-				$dom->strictErrorChecking = false;
-				if (@$dom->loadHTML($node)) {
-					$this->node = $dom;
-				} else {
-					throw new \Exception('load html error');
-				}
+				$tidy = new tidy();
+				$tidy->parseString($node, null, 'utf8');
+				$this->node = $tidy->html();
 			}
 		}
+	}
+
+	public function __get($name) {
+		if (isset($this->node->attribute [$name])) {
+			return $this->node->attribute [$name];
+		}
+		if (isset($this->node->$name)) {
+			return $this->node->$name;
+		}
+		return false;
 	}
 
 	/**
@@ -37,10 +44,10 @@ class ParserDom extends ParserAbstract {
 	 *
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return ParserDom|ParserDom[]
+	 * @return self|self[]
 	 */
 	public function findBreadthFirst($selector, $idx = null) {
-		if (empty($this->node->childNodes)) {
+		if (empty($this->node->child)) {
 			return false;
 		}
 		$selectors = $this->parse_selector($selector);
@@ -52,7 +59,7 @@ class ParserDom extends ParserAbstract {
 			if (($level = count($selectors [$c])) === 0) {
 				return false;
 			}
-			$need_to_search = iterator_to_array($this->node->childNodes);
+			$need_to_search = $this->node->child;
 			$search_level = 1;
 			while (!empty($need_to_search)) {
 				$temp = array();
@@ -73,9 +80,10 @@ class ParserDom extends ParserAbstract {
 					array_shift($need_to_search);
 				}
 				foreach ($temp as $temp_val) {
-					if (!empty($temp_val->childNodes)) {
-						foreach ($temp_val->childNodes as $val) {
-							$need_to_search[] = $val;
+					if (!empty($temp_val->child)) {
+						foreach ($temp_val->child as $key => $val) {
+							$temp_val->child[$key]->parent = $temp_val;
+							$need_to_search[] = $temp_val->child[$key];
 						}
 					}
 				}
@@ -104,7 +112,7 @@ class ParserDom extends ParserAbstract {
 	 * @return self|self[]
 	 */
 	public function findDepthFirst($selector, $idx = null) {
-		if (empty($this->node->childNodes)) {
+		if (empty($this->node->child)) {
 			return false;
 		}
 		$selectors = $this->parse_selector($selector);
@@ -148,21 +156,17 @@ class ParserDom extends ParserAbstract {
 	 * @return string|null
 	 */
 	public function getAttr($name) {
-		$oAttr = $this->node->attributes->getNamedItem($name);
-		if (isset($oAttr)) {
-			return $oAttr->nodeValue;
-		}
-		return null;
+		return isset($this->node->attribute [$name]) ? $this->node->attribute [$name] : null;
 	}
 
 	/**
 	 * 深度查询
 	 *
-	 * @param \DOMNode $search
-	 * @param          $idx
-	 * @param          $selectors
-	 * @param          $level
-	 * @param int      $search_levle
+	 * @param     $search
+	 * @param     $idx
+	 * @param     $selectors
+	 * @param     $level
+	 * @param int $search_levle
 	 * @return bool
 	 */
 	protected function search(&$search, $idx, $selectors, $level, $search_levle = 0) {
@@ -179,9 +183,10 @@ class ParserDom extends ParserAbstract {
 				$this->lFind[] = new self($rs);
 			}
 		}
-		if (!empty($search->childNodes)) {
-			foreach ($search->childNodes as $val) {
-				if ($this->search($val, $idx, $selectors, $level, $search_levle + 1)) {
+		if (!empty($search->child)) {
+			foreach ($search->child as $key => $val) {
+				$search->child[$key]->parent = $search;
+				if ($this->search($search->child[$key], $idx, $selectors, $level, $search_levle + 1)) {
 					return true;
 				}
 			}
@@ -190,42 +195,64 @@ class ParserDom extends ParserAbstract {
 	}
 
 	/**
-	 * 获取tidy_node文本
+	 * 获取node文本
 	 *
-	 * @param \DOMNode $node
+	 * @param tidyNode $node
 	 * @return string
 	 */
 	protected function text(&$node) {
-		return $node->textContent;
+		if (isset($node->plaintext)) {
+			return $node->plaintext;
+		}
+		$node->plaintext = '';
+		switch ($node->type) {
+			case TIDY_NODETYPE_TEXT :
+				$node->plaintext = str_replace(array("\r", "\r\n", "\n", '&nbsp;'), ' ', $node->value);
+				return $node->plaintext;
+			case TIDY_NODETYPE_COMMENT :
+				return $node->plaintext;
+		}
+		if (strcasecmp($node->name, 'script') === 0) {
+			return $node->plaintext;
+		}
+		if (strcasecmp($node->name, 'style') === 0) {
+			return $node->plaintext;
+		}
+		if (!empty($node->child)) {
+			foreach ($node->child as $n) {
+				$node->plaintext .= $this->text($n);
+			}
+			if ($node->name == 'span') {
+				$node->plaintext .= ' ';
+			}
+		}
+		return $node->plaintext;
 	}
 
 	/**
 	 * 匹配节点,由于采取的倒序查找，所以时间复杂度为n+m*l n为总节点数，m为匹配最后一个规则的个数，l为规则的深度,
 	 *
-	 * @param \DOMNode $search
+	 * @param tidyNode $search
 	 * @param array    $selectors
 	 * @param int      $current
-	 * @return boolean|\DOMNode
+	 * @return boolean|tidyNode
 	 */
 	protected function seek($search, $selectors, $current) {
-		if (!($search instanceof \DOMElement)) {
-			return false;
-		}
 		list ($tag, $key, $val, $exp, $no_key) = $selectors [$current];
 		$pass = true;
 		if ($tag === '*' && !$key) {
 			exit('tag为*时，key不能为空');
 		}
-		if ($tag && $tag != $search->tagName && $tag !== '*') {
+		if ($tag && $tag != $search->name && $tag !== '*') {
 			$pass = false;
 		}
 		if ($pass && $key) {
 			if ($no_key) {
-				if ($search->hasAttribute($key)) {
+				if (isset ($search->attribute [$key])) {
 					$pass = false;
 				}
 			} else {
-				if ($key != "plaintext" && !$search->hasAttribute($key)) {
+				if ($key != "plaintext" && !isset ($search->attribute [$key])) {
 					$pass = false;
 				}
 			}
@@ -234,11 +261,11 @@ class ParserDom extends ParserAbstract {
 			if ($key == "plaintext") {
 				$nodeKeyValue = $this->text($search);
 			} else {
-				$nodeKeyValue = $search->getAttribute($key);
+				$nodeKeyValue = $search->attribute [$key];
 			}
 			$check = $this->match($exp, $val, $nodeKeyValue);
 			if (!$check && strcasecmp($key, 'class') === 0) {
-				foreach (explode(' ', $search->getAttribute($key)) as $k) {
+				foreach (explode(' ', $search->attribute [$key]) as $k) {
 					if (!empty ($k)) {
 						$check = $this->match($exp, $val, $k);
 						if ($check) {
@@ -268,11 +295,15 @@ class ParserDom extends ParserAbstract {
 	/**
 	 * 获取父亲节点
 	 *
-	 * @param \DOMNode $node
-	 * @return \DOMNode
+	 * @param tidyNode $node
+	 * @return tidyNode
 	 */
 	protected function getParent($node) {
-		return $node->parentNode;
+		if (isset($node->parent)) {
+			return $node->parent;
+		} else {
+			return $node->getParent();
+		}
 	}
 
 }

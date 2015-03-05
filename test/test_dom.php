@@ -3,6 +3,7 @@
  * Description: 
  */
 include '../src/ParserInterface.php';
+include '../src/ParserAbstract.php';
 include '../src/ParserDom.php';
 
 use HtmlParser\ParserDom;
@@ -27,18 +28,18 @@ $dom = new ParserDom($html);
 
 echo $html . "\n\n\n";
 
-echo "p last one: " . $dom->find('p', -1)->getPlainText() . "\n";
-echo "have id first: " . $dom->find('p[id]', 0)->getPlainText() . "\n";
-echo "hava id p_id_2 first: " . $dom->find('p[id=p_id_2]', 0)->getPlainText() . "\n";
-echo "do not have id second: " . $dom->find('p[!id]', 1)->getPlainText() . "\n";
+echo "p last one: " . $dom->findBreadthFirst('p', -1)->getPlainText() . "\n";
+echo "have id first: " . $dom->findBreadthFirst('p[id]', 0)->getPlainText() . "\n";
+echo "hava id p_id_2 first: " . $dom->findBreadthFirst('p[id=p_id_2]', 0)->getPlainText() . "\n";
+echo "do not have id second: " . $dom->findBreadthFirst('p[!id]', 1)->getPlainText() . "\n";
 
-echo "get by id test1: " . $dom->find('#test1',0)->getPlainText() . "\n";
+echo "get by id test1: " . $dom->findBreadthFirst('#test1',0)->getPlainText() . "\n";
 
-$p1 = $dom->find('p.test_class1',0);
+$p1 = $dom->findBreadthFirst('p.test_class1',0);
 echo "get by class test_class1: " .  $p1->getPlainText() . "\n";
 echo "class: " .  $p1->getAttr('class') . "\n";
 
-$p_array = $dom->find('p.test_class');
+$p_array = $dom->findBreadthFirst('p.test_class');
 echo "\np list: \n";
 foreach ($p_array as $p){
 	echo $p->getPlainText() . "\n";
