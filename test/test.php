@@ -19,7 +19,9 @@ $iCount = 10;
 $fStartTime = microtime(true);
 for ($i = 0; $i < $iCount; $i++) {
 	$dom = new ParserDom($html);
-//	test($dom);
+	test($dom);
+	echo memory_get_usage() / 1024 / 1024 . "M\n";
+	echo memory_get_peak_usage() / 1024 / 1024 . "M\n";
 }
 echo "Dom: " . (microtime(true) - $fStartTime) . "\n";
 
@@ -27,7 +29,9 @@ echo "Dom: " . (microtime(true) - $fStartTime) . "\n";
 $fStartTime = microtime(true);
 for ($i = 0; $i < $iCount; $i++) {
 	$dom = new ParserTidy($html);
-//	test($dom);
+	test($dom);
+	echo memory_get_usage() / 1024 / 1024 . "M\n";
+	echo memory_get_peak_usage() / 1024 / 1024 . "M\n";
 }
 echo "Tidy: " . (microtime(true) - $fStartTime) . "\n";
 
