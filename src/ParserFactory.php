@@ -20,7 +20,7 @@ class ParserFactory {
 	 * @return ParserInterface
 	 */
 	public static function createParser($html, $sType = self::TYPE_DOM) {
-		$sClassName = 'Parser' . $sType;
+		$sClassName = '\HtmlParser\Parser' . $sType;
 		return new $sClassName($html);
 	}
 
