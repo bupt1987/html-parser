@@ -6,7 +6,9 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 并提供广度优先查询findBreadthFirst()和深度优先查询findDepthFirst() 两种查询方式，可根据自己的情况选择使用。
 因为代码实现的问题，在查询全部时深度优先比广度优先快一点。  
 
-默认使用dom模块，效率比tidy模块更高
+默认使用dom模块，效率比tidy模块更高  
+
+注意：html代码必须是utf-8编码字符，如果不是请转成utf-8
 
 现在支持composer
 
