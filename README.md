@@ -34,7 +34,7 @@ $html = '<html>
     <div id="test1">测试1</div>
   </body>
 </html>';
-//现在支持直接输入html字符串了
+//也可以 new ParserDom($html) 或者 new ParserTidy($html)
 $html_dom = ParserFactory::createParser($html, ParserFactory::TYPE_DOM);
 $p_array = $html_dom->findBreadthFirst('p.test_class');
 $p1 = $html_dom->findBreadthFirst('p.test_class1',0);
