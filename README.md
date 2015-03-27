@@ -8,7 +8,8 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 
 默认使用dom模块，效率比tidy模块更高  
 
-注意：html代码必须是utf-8编码字符，如果不是请转成utf-8
+注意：html代码必须是utf-8编码字符，如果不是请转成utf-8  
+      如果有乱码的问题参考：http://www.fwolf.com/blog/post/314  
 
 现在支持composer
 
