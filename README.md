@@ -4,9 +4,8 @@ HtmlParser
 [![Build Status](https://api.travis-ci.org/bupt1987/html-parser.svg)](https://travis-ci.org/bupt1987/html-parser)  
 
 php html解析工具，类似与PHP Simple HTML DOM Parser。
-由于基于php模块tidy|dom，所以在解析html时的效率比 PHP Simple HTML DOM Parser 快好几倍。
+由于基于php模块dom，所以在解析html时的效率比 PHP Simple HTML DOM Parser 快好几倍。
 
-默认使用dom模块，效率比tidy模块更高  
 
 注意：html代码必须是utf-8编码字符，如果不是请转成utf-8  
       如果有乱码的问题参考：http://www.fwolf.com/blog/post/314  
