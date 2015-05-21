@@ -1,6 +1,8 @@
 HtmlParser
 ===============
 
+[![Build Status](https://travis-ci.org/bupt1987/html-parser.svg)](https://travis-ci.org/bupt1987/html-parser)  
+
 php html解析工具，类似与PHP Simple HTML DOM Parser。
 由于基于php模块tidy|dom，所以在解析html时的效率比 PHP Simple HTML DOM Parser 快好几倍。
 并提供广度优先查询findBreadthFirst()和深度优先查询findDepthFirst() 两种查询方式，可根据自己的情况选择使用。
