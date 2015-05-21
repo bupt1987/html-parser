@@ -8,6 +8,7 @@ namespace HtmlParser;
  * @author: 俊杰Jerry<bupt1987@gmail.com>
  * @date: 2013-6-10
  * @version: 1.0
+ * @codeCoverageIgnore
  */
 interface ParserInterface {
 
@@ -17,16 +18,7 @@ interface ParserInterface {
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
 	 * @return ParserInterface|ParserInterface[]
 	 */
-	public function findBreadthFirst($selector, $idx = null);
-
-
-	/**
-	 * 深度优先查询
-	 * @param string $selector
-	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return ParserInterface|ParserInterface[]
-	 */
-	public function findDepthFirst($selector, $idx = null);
+	public function find($selector, $idx = null);
 
 	/**
 	 * 返回文本信息

@@ -5,11 +5,18 @@
 
 namespace HtmlParser;
 
+/**
+ * Class ParserAbstract
+ * @package HtmlParser
+ */
 abstract class ParserAbstract implements ParserInterface {
 
 	protected $node = null;
 	protected $lFind = array();
 
+	/**
+	 * @codeCoverageIgnore
+	 */
 	public function __destruct() {
 		$this->clearNode($this->node);
 	}
@@ -99,6 +106,7 @@ abstract class ParserAbstract implements ParserInterface {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * 释放内存
 	 *
 	 * @param $node

@@ -39,7 +39,7 @@ class ParserDom extends ParserAbstract {
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
 	 * @return ParserDom|ParserDom[]
 	 */
-	public function findBreadthFirst($selector, $idx = null) {
+	/*public function findBreadthFirst($selector, $idx = null) {
 		if (empty($this->node->childNodes)) {
 			return false;
 		}
@@ -93,7 +93,7 @@ class ParserDom extends ParserAbstract {
 			}
 		}
 		return $found;
-	}
+	}*/
 
 
 	/**
@@ -103,7 +103,7 @@ class ParserDom extends ParserAbstract {
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
 	 * @return self|self[]
 	 */
-	public function findDepthFirst($selector, $idx = null) {
+	public function find($selector, $idx = null) {
 		if (empty($this->node->childNodes)) {
 			return false;
 		}
@@ -201,7 +201,7 @@ class ParserDom extends ParserAbstract {
 
 	/**
 	 * 匹配节点,由于采取的倒序查找，所以时间复杂度为n+m*l n为总节点数，m为匹配最后一个规则的个数，l为规则的深度,
-	 *
+	 * @codeCoverageIgnore
 	 * @param \DOMNode $search
 	 * @param array    $selectors
 	 * @param int      $current
