@@ -16,16 +16,16 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('p1', $oPClass->getPlainText());
 		$this->assertEquals('test_class test_class1', $oPClass->getAttr('class'));
 
-		$lCheck = [
+		$lCheck = array(
 			'p1',
 			'p2',
 			'p3',
 			'p_id',
 			'p_id_2',
-		];
+		);
 		$lPTag = $oDom->findBreadthFirst('p.test_class');
 		$this->assertEquals(5, count($lPTag));
-		$lPText = [];
+		$lPText = array();
 		foreach ($lPTag as $oPTag) {
 			$lPText[] = $oPTag->getPlainText();
 		}
@@ -46,16 +46,16 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('p1', $oPClass->getPlainText());
 		$this->assertEquals('test_class test_class1', $oPClass->getAttr('class'));
 
-		$lCheck = [
+		$lCheck = array(
 			'p1',
 			'p2',
 			'p3',
 			'p_id',
 			'p_id_2',
-		];
+		);
 		$lPTag = $oDom->findBreadthFirst('p.test_class');
 		$this->assertEquals(5, count($lPTag));
-		$lPText = [];
+		$lPText = array();
 		foreach ($lPTag as $oPTag) {
 			$lPText[] = $oPTag->getPlainText();
 		}
