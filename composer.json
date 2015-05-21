@@ -7,14 +7,15 @@
 		{
 			"name": "俊杰jerry",
 			"email": "bupt1987@gmail.com",
-			"homepage": "http://zhaidaosi.com",
+			"homepage": "http://bupt1987.github.io",
 			"role": "Developer"
 		}
 	],
 	"require": {
 		"php": ">=5.3.2",
 		"ext-tidy": "*",
-		"ext-dom": "*"
+		"ext-dom": "*",
+		"phpunit/phpunit": "4.5.*"
 	},
 	"autoload": {
 		"psr-4": {
