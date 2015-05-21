@@ -13,3 +13,4 @@ before_script:
 
 script:
   - phpunit phpunit
+  
