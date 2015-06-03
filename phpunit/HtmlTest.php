@@ -30,6 +30,9 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			$lPText[] = $oPTag->getPlainText();
 		}
 		$this->assertEquals($lCheck, $lPText);
+
+		$this->assertEquals($oDom->node instanceof \DOMNode, true);
+
 	}
 
 	private static function getHtml() {

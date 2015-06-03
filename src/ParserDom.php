@@ -12,6 +12,11 @@ namespace HtmlParser;
 class ParserDom extends ParserAbstract {
 
 	/**
+	 * @var \DOMNode
+	 */
+	public $node;
+
+	/**
 	 * @param \DOMNode|string $node
 	 * @throws \Exception
 	 */

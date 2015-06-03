@@ -133,4 +133,20 @@ $e = $html->find('ul', 0)->find('li', 0);
 [attribute*=value]	匹配具有指定属性的元素,且该属性包含了一定的值
 ~~~
 
+Dom扩展用法
+===============================================================================
+~~~
+获取dom通过扩展实现更多的功能，详见：http://php.net/manual/zh/book.dom.php
 
+/**
+ * @var \DOMNode
+ */
+$oHtml->node
+
+$oHtml->node->childNodes
+$oHtml->node->parentNode
+$oHtml->node->firstChild
+$oHtml->node->lastChild
+等等...
+
+~~~
