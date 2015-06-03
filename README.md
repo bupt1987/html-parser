@@ -12,7 +12,7 @@ php html解析工具，类似与PHP Simple HTML DOM Parser。
 
 现在支持composer
 
-"require": {"bupt1987/html-parser": "2.1"}
+"require": {"bupt1987/html-parser": "dev-master"}
 
 加载composer  
 require 'vendor/autoload.php';
