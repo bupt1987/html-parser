@@ -9,12 +9,17 @@ namespace HtmlParser;
  * @author     : 俊杰Jerry<bupt1987@gmail.com>
  * @date       : 2013-6-10
  */
-class ParserDom extends ParserAbstract {
+class ParserDom {
 
 	/**
 	 * @var \DOMNode
 	 */
 	public $node;
+
+	/**
+	 * @var array
+	 */
+	private $lFind = array();
 
 	/**
 	 * @param \DOMNode|string $node
@@ -35,6 +40,13 @@ class ParserDom extends ParserAbstract {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @codeCoverageIgnore
+	 */
+	public function __destruct() {
+		$this->clearNode($this->node);
 	}
 
 	/**
@@ -161,17 +173,101 @@ class ParserDom extends ParserAbstract {
 	}
 
 	/**
+	 * 匹配
+	 *
+	 * @param string $exp
+	 * @param string $pattern
+	 * @param string $value
+	 * @return boolean|number
+	 */
+	private function match($exp, $pattern, $value) {
+		$pattern = strtolower($pattern);
+		$value = strtolower($value);
+		switch ($exp) {
+			case '=' :
+				return ($value === $pattern);
+			case '!=' :
+				return ($value !== $pattern);
+			case '^=' :
+				return preg_match("/^" . preg_quote($pattern, '/') . "/", $value);
+			case '$=' :
+				return preg_match("/" . preg_quote($pattern, '/') . "$/", $value);
+			case '*=' :
+				if ($pattern [0] == '/') {
+					return preg_match($pattern, $value);
+				}
+				return preg_match("/" . $pattern . "/i", $value);
+		}
+		return false;
+	}
+
+	/**
+	 * 分析查询语句
+	 *
+	 * @param string $selector_string
+	 * @return array
+	 */
+	private function parse_selector($selector_string) {
+		$pattern = '/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-:]+)(?:([!*^$]?=)["\']?(.*?)["\']?)?\])?([\/, ]+)/is';
+		preg_match_all($pattern, trim($selector_string) . ' ', $matches, PREG_SET_ORDER);
+		$selectors = array();
+		$result = array();
+		foreach ($matches as $m) {
+			$m [0] = trim($m [0]);
+			if ($m [0] === '' || $m [0] === '/' || $m [0] === '//')
+				continue;
+			if ($m [1] === 'tbody')
+				continue;
+			list ($tag, $key, $val, $exp, $no_key) = array($m [1], null, null, '=', false);
+			if (!empty ($m [2])) {
+				$key = 'id';
+				$val = $m [2];
+			}
+			if (!empty ($m [3])) {
+				$key = 'class';
+				$val = $m [3];
+			}
+			if (!empty ($m [4])) {
+				$key = $m [4];
+			}
+			if (!empty ($m [5])) {
+				$exp = $m [5];
+			}
+			if (!empty ($m [6])) {
+				$val = $m [6];
+			}
+			// convert to lowercase
+			$tag = strtolower($tag);
+			$key = strtolower($key);
+			// elements that do NOT have the specified attribute
+			if (isset ($key [0]) && $key [0] === '!') {
+				$key = substr($key, 1);
+				$no_key = true;
+			}
+			$result [] = array($tag, $key, $val, $exp, $no_key);
+			if (trim($m [7]) === ',') {
+				$selectors [] = $result;
+				$result = array();
+			}
+		}
+		if (count($result) > 0) {
+			$selectors [] = $result;
+		}
+		return $selectors;
+	}
+
+	/**
 	 * 深度查询
 	 *
 	 * @param \DOMNode $search
 	 * @param          $idx
 	 * @param          $selectors
 	 * @param          $level
-	 * @param int      $search_levle
+	 * @param int      $search_level
 	 * @return bool
 	 */
-	protected function search(&$search, $idx, $selectors, $level, $search_levle = 0) {
-		if ($search_levle >= $level) {
+	private function search(&$search, $idx, $selectors, $level, $search_level = 0) {
+		if ($search_level >= $level) {
 			$rs = $this->seek($search, $selectors, $level - 1);
 			if ($rs !== false && $idx !== null) {
 				if ($idx == count($this->lFind)) {
@@ -186,7 +282,7 @@ class ParserDom extends ParserAbstract {
 		}
 		if (!empty($search->childNodes)) {
 			foreach ($search->childNodes as $val) {
-				if ($this->search($val, $idx, $selectors, $level, $search_levle + 1)) {
+				if ($this->search($val, $idx, $selectors, $level, $search_level + 1)) {
 					return true;
 				}
 			}
@@ -200,7 +296,7 @@ class ParserDom extends ParserAbstract {
 	 * @param \DOMNode $node
 	 * @return string
 	 */
-	protected function text(&$node) {
+	private function text(&$node) {
 		return $node->textContent;
 	}
 
@@ -212,7 +308,7 @@ class ParserDom extends ParserAbstract {
 	 * @param int      $current
 	 * @return boolean|\DOMNode
 	 */
-	protected function seek($search, $selectors, $current) {
+	private function seek($search, $selectors, $current) {
 		if (!($search instanceof \DOMElement)) {
 			return false;
 		}
@@ -276,8 +372,23 @@ class ParserDom extends ParserAbstract {
 	 * @param \DOMNode $node
 	 * @return \DOMNode
 	 */
-	protected function getParent($node) {
+	private function getParent($node) {
 		return $node->parentNode;
+	}
+
+	/**
+	 * @codeCoverageIgnore
+	 * 释放内存
+	 *
+	 * @param $node
+	 */
+	private function clearNode(&$node) {
+		if (!empty($node->childNodes)) {
+			foreach ($node->childNodes as $child) {
+				$this->clearNode($child);
+			}
+		}
+		unset($node);
 	}
 
 }
