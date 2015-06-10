@@ -159,6 +159,30 @@ class ParserDom {
 	}
 
 	/**
+	 * 获取innerHtml
+	 * @return string
+	 */
+	public function innerHtml() {
+		$innerHTML = "";
+		$children = $this->node->childNodes;
+		foreach ($children as $child) {
+			$innerHTML .= $this->node->ownerDocument->saveHTML($child);
+		}
+		return $innerHTML;
+	}
+
+	/**
+	 * 获取outerHtml
+	 * @return string
+	 */
+	public function outerHtml() {
+		$doc = new \DOMDocument();
+		$doc->appendChild($doc->importNode($this->node, true));
+		return $doc->saveHTML();
+	}
+
+
+	/**
 	 * 获取html的元属值
 	 *
 	 * @param string $name
@@ -263,7 +287,7 @@ class ParserDom {
 	 * @param          $idx
 	 * @param          $selectors
 	 * @param          $level
-	 * @param int      $search_level
+	 * @param int $search_level
 	 * @return bool
 	 */
 	private function search(&$search, $idx, $selectors, $level, $search_level = 0) {
@@ -304,8 +328,8 @@ class ParserDom {
 	 * 匹配节点,由于采取的倒序查找，所以时间复杂度为n+m*l n为总节点数，m为匹配最后一个规则的个数，l为规则的深度,
 	 * @codeCoverageIgnore
 	 * @param \DOMNode $search
-	 * @param array    $selectors
-	 * @param int      $current
+	 * @param array $selectors
+	 * @param int $current
 	 * @return boolean|\DOMNode
 	 */
 	private function seek($search, $selectors, $current) {
