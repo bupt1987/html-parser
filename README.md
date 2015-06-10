@@ -45,6 +45,9 @@ foreach ($p_array as $p){
 echo $div->getPlainText() . "\n";
 echo $p1->getPlainText() . "\n";
 echo $p1->getAttr('class') . "\n";
+echo "show html:\n";
+echo $div->innerHtml() . "\n";
+echo $div->outerHtml() . "\n";
 ?>
 ~~~
 
