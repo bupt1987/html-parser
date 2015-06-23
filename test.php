@@ -27,4 +27,15 @@ echo $p1->getAttr('class') . "\n";
 
 echo "show html:\n";
 echo $div->innerHtml() . "\n";
-echo $div->outerHtml() . "\n";
+echo $div->outerHtml() . "\n\n";
+
+
+$url = 'http://www.sina.com.cn/';
+$sHtml = file_get_contents($url);
+
+$oDom = new \HtmlParser\ParserDom($sHtml);
+$oFound = $oDom->find('ul.uni-blk-list02', 0);
+
+echo "inner:\n\n" . $oFound->innerHtml() . "\n\n";
+echo "outer:\n\n" .$oFound->outerHtml() . "\n";
+

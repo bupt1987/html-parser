@@ -19,7 +19,7 @@ class ParserDom {
 	/**
 	 * @var array
 	 */
-	private $lFind = array();
+	private $_lFind = array();
 
 	/**
 	 * @param \DOMNode|string $node
@@ -134,8 +134,8 @@ class ParserDom {
 			}
 			$this->search($this->node, $idx, $selectors [$c], $level);
 		}
-		$found = $this->lFind;
-		$this->lFind = array();
+		$found = $this->_lFind;
+		$this->_lFind = array();
 		if ($idx !== null) {
 			if ($idx < 0) {
 				$idx = count($found) + $idx;
@@ -166,19 +166,19 @@ class ParserDom {
 		$innerHTML = "";
 		$children = $this->node->childNodes;
 		foreach ($children as $child) {
-			$innerHTML .= $this->node->ownerDocument->saveHTML($child);
+			$innerHTML .= $this->node->ownerDocument->saveHTML($child) ?: '';
 		}
 		return $innerHTML;
 	}
 
 	/**
 	 * 获取outerHtml
-	 * @return string
+	 * @return string|bool
 	 */
 	public function outerHtml() {
 		$doc = new \DOMDocument();
 		$doc->appendChild($doc->importNode($this->node, true));
-		return $doc->saveHTML();
+		return $doc->saveHTML($doc);
 	}
 
 
@@ -294,14 +294,14 @@ class ParserDom {
 		if ($search_level >= $level) {
 			$rs = $this->seek($search, $selectors, $level - 1);
 			if ($rs !== false && $idx !== null) {
-				if ($idx == count($this->lFind)) {
-					$this->lFind[] = new self($rs);
+				if ($idx == count($this->_lFind)) {
+					$this->_lFind[] = new self($rs);
 					return true;
 				} else {
-					$this->lFind[] = new self($rs);
+					$this->_lFind[] = new self($rs);
 				}
 			} elseif ($rs !== false) {
-				$this->lFind[] = new self($rs);
+				$this->_lFind[] = new self($rs);
 			}
 		}
 		if (!empty($search->childNodes)) {
