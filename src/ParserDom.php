@@ -414,7 +414,19 @@ class ParserDom {
 		}
 		unset($node);
 	}
+	function __get($name)
+	{
+		switch ($name)
+		{
+			case 'outertext':
+				return $this->outerHtml();
+			case 'innertext':
+				return $this->innerHtml();
+			case 'plaintext':
+				return $this->getPlainText();
 
+		}
+	}
 }
 
 ?>
