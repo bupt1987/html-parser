@@ -69,11 +69,11 @@ $ret = $html->find('div[id]');
 // 查找所有含有id属性为foo的div标签
 $ret = $html->find('div[id=foo]');
 
-// 設置屬性
+// 设置属性
 $ret = $html->find('a', 0);
 $ret->setAttr('href', 'example url');
 
-// 儲存已修改過的DOM本文
+// 储存已修改过的DOM本文
 $data = $html->save();
 ~~~
 
