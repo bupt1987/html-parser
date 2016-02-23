@@ -189,10 +189,25 @@ class ParserDom {
 	 * @return string|null
 	 */
 	public function getAttr($name) {
-		$oAttr = $this->node->attributes->getNamedItem($name);
+		//$oAttr = $this->node->attributes->getNamedItem($name);
+		$oAttr = $this->node->getAttribute($name);
+
 		if (isset($oAttr)) {
-			return $oAttr->nodeValue;
+			//return $oAttr->nodeValue;
+			return $oAttr;
 		}
+		return null;
+	}
+
+	/**
+	 * 设置html的元属值
+	 *
+	 * @param string $name
+	 * @param string $value
+	 * @return string|null
+	 */
+	public function setAttr($name, $value) {
+		$this->node->setAttribute($name, $value);
 		return null;
 	}
 
