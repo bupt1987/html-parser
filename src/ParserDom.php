@@ -295,7 +295,11 @@ class ParserDom {
 	 * @return string|null
 	 */
 	public function setAttr($name, $value) {
-		$this->node->setAttribute($name, $value);
+		if ($value === null) {
+			$this->node->removeAttribute($name);
+		} else {
+			$this->node->setAttribute($name, $value);
+		}
 		return null;
 	}
 
