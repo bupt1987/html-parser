@@ -234,6 +234,7 @@ $e->outertext = $e->outertext . '<div>foo<div>';
 ```
 
 Insert a element
+```php
 $e->outertext = '<div>foo<div>' . $e->outertext;
 ```
 
