@@ -429,19 +429,57 @@ class ParserDom {
 		}
 		unset($node);
 	}
-	function __get($name)
-	{
-		switch ($name)
-		{
+	/**
+	 * 将处理后的Dom输出
+	 * Export changed Dom into string
+	 * 支援 PHP Simple Dom 的习惯用法
+	 * for supporting usage of PHP Simple DOM Parser
+	 *
+	 * @param boolean $strip
+	 * @return string
+	 */
+	public function save($strip = true) {
+		if ($strip) {
+			$this->strip_html_container($this->node);
+			return $this->node->saveHTML();
+		} else {
+			return $this->node->saveHTML();
+		}
+	}
+	/**
+	 * 去除因 loadHTML() 自行添加的外部HTML容器
+	 * Strip HTML container created by loadHTML()
+	 *
+	 * @param \DOMNode $node
+	 */
+	private function strip_html_container(&$node) {
+		$container = $node->getElementsByTagName('body')->item(0);
+		$container = $container->parentNode->removeChild($container);
+		while ($node->firstChild) {
+			$node->removeChild($node->firstChild);
+		}
+		while ($container->firstChild ) {
+			$node->appendChild($container->firstChild);
+		}
+	}
+	/**
+	 * Magic methods - for supporting usage of PHP Simple Dom Parser
+	 * 支援 PHP Simple Dom 的习惯用法
+	 *
+	 * @param string $name
+	 * @return string
+	 */
+	function __get($name) {
+		switch ($name) {
 			case 'outertext':
 				return $this->outerHtml();
 			case 'innertext':
 				return $this->innerHtml();
 			case 'plaintext':
 				return $this->getPlainText();
-
 		}
 	}
+
 }
 
 ?>
