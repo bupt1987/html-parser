@@ -1,3 +1,5 @@
+#PHP DOM HTML Parser
+
 **PHP DOM HTML Parser** uses built-in [PHP DOM extension](http://php.net/manual/en/book.dom.php) to process your requests, after testing, it is 10x faster than [PHP Simple HTML DOM Parser](http://simplehtmldom.sourceforge.net/)
 
 PHP DOM extension requires the libxml PHP extension. This means that passing in --enable-libxml is also required, although this is implicitly accomplished because libxml is enabled by default.
