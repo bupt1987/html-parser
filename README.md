@@ -4,8 +4,6 @@
 
 PHP DOM extension requires the libxml PHP extension. This means that passing in --enable-libxml is also required, although this is implicitly accomplished because libxml is enabled by default.
 
-# Examples
-
 ***
 
 ## Getting Started
@@ -26,7 +24,6 @@ If you comment out the Namespace in line:2
 $html_dom = new ParserDom($html);
 ```
 
-***
 
 ## Basic
 
@@ -118,7 +115,6 @@ Find all td tags with attribite align=center in table tags
 $es = $html_dom->find('table td[align=center]');
 ```
 
-***
 
 ## Modify HTML 
 
@@ -138,7 +134,6 @@ Modify outer HTML
 $html_dom->find('a', 0)->outertext = '<h1>Title Link</h1>';
 ```
 
-***
 
 ## Nested Selectors
 
@@ -156,7 +151,6 @@ Find first `<li>` in first `<ul>`
 $e = $html_dom->find('ul', 0)->find('li', 0);
 ```
 
-***
 
 ## Attribute Selectors
 
@@ -170,7 +164,6 @@ Filter | Description
 [attribute$=value] | Matches elements that have the specified attribute and it ends with a certain value.
 [attribute*=value] | Matches elements that have the specified attribute and it contains a certain value.
 
-***
 
 ## Magic Attribute
 
@@ -197,7 +190,6 @@ $e->href | Read or write  "href" attribute of element.
 
 Except outertext, innertext and plaintext, you can use $e->attribute_name to read or write attribute of element.
 
-***
 
 ## More Examples
 
@@ -255,7 +247,6 @@ Dumps the internal DOM tree back into a file
 $html_dom->save('result.htm');
 ```
 
-***
 
 ## Extension
 
