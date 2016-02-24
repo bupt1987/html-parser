@@ -2,11 +2,12 @@
 namespace HtmlParser;
 
 /**
- * Copyright (c) 2013, 俊杰Jerry
+ * Copyright (c) 2013, 俊杰Jerry, Shinbon Lin
  * All rights reserved.
  *
  * @description: html解析器
  * @author     : 俊杰Jerry<bupt1987@gmail.com>
+ * @author     : Shinbon Lin 
  * @date       : 2013-6-10
  */
 class ParserDom {
@@ -154,31 +155,100 @@ class ParserDom {
 	 *
 	 * @return string
 	 */
-	public function getPlainText() {
-		return $this->text($this->node);
+	public function getPlainText($value = null) {
+		if ($value == null) {
+			return $this->text($this->node);
+		} else {
+			$this->node->nodeValue = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8');
+		}
 	}
 
 	/**
 	 * 获取innerHtml
+	 * @param string $value
 	 * @return string
 	 */
-	public function innerHtml() {
-		$innerHTML = "";
-		$children = $this->node->childNodes;
-		foreach ($children as $child) {
-			$innerHTML .= $this->node->ownerDocument->saveHTML($child) ?: '';
+	public function innerHtml($value = null) {
+		if ($value == null) {
+			$innerHTML = "";
+			$children = $this->node->childNodes;
+			foreach ($children as $child) {
+				$innerHTML .= $this->node->ownerDocument->saveHTML($child) ?: '';
+			}
+			return $innerHTML;
+		} else {
+			// Original code by Keyvan Minoukadeh <keyvan@keyvan.net>,
+			// integrated by Shinbon Lin.
+
+			for ($x = $this->node->childNodes->length-1; $x >= 0; $x--) {
+				$this->node->removeChild($this->node->childNodes->item($x));
+			}
+			$f = $this->node->ownerDocument->createDocumentFragment();
+			$result = @$f->appendXML($value); // @ to suppress PHP warnings
+			if ($result) {
+				if ($f->hasChildNodes()) {
+					$this->node->appendChild($f);
+				}
+			} else {
+				// $value is probably ill-formed
+				// 自定义的容器有html标签语法上的错误
+				$f = new \DOMDocument();
+				$value = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8');
+				$result = @$f->loadHTML('<htmlfragment>'.$value.'</htmlfragment>');
+				if ($result) {
+					$import = $f->getElementsByTagName('htmlfragment')->item(0);
+					foreach ($import->childNodes as $child) {
+						$importedNode = $this->node->ownerDocument->importNode($child, true);
+						$this->node->appendChild($importedNode);
+					}
+				} else {
+					// empty element.
+				}
+			}
 		}
-		return $innerHTML;
 	}
 
 	/**
 	 * 获取outerHtml
+	 * @param string $value
 	 * @return string|bool
 	 */
-	public function outerHtml() {
-		$doc = new \DOMDocument();
-		$doc->appendChild($doc->importNode($this->node, true));
-		return $doc->saveHTML($doc);
+	public function outerHtml($value = null) {
+		if ($value == null) {
+			$doc = new \DOMDocument();
+			$doc->appendChild($doc->importNode($this->node, true));
+			return $doc->saveHTML($doc);
+		} else {
+			$parentNode = $this->getParent($this->node);
+			for ($x = $parentNode->childNodes->length-1; $x >= 0; $x--) {
+				if ($this->node->isSameNode($parentNode->childNodes->item($x))) {
+					$f = $parentNode->ownerDocument->createDocumentFragment();
+					$result = @$f->appendXML($value);
+					if ($result) {
+						echo '1****************1';
+						if ($parentNode->hasChildNodes()) {
+							$parentNode->replaceChild($f, $parentNode->childNodes->item($x));
+						}
+					} else {
+						// $value is probably ill-formed
+						// 自定义的容器有html标签语法上的错误
+						$f = new \DOMDocument();
+						$value = mb_convert_encoding($value, 'HTML-ENTITIES', 'UTF-8');
+						$result = @$f->loadHTML($value);
+						if ($result) {
+							$this->strip_html_container($f);
+							$import = $f->documentElement;
+							$importedNode = $this->node->ownerDocument->importNode($import, true);
+							if ($parentNode->hasChildNodes()) {
+								$parentNode->replaceChild($importedNode, $parentNode->childNodes->item($x));
+							}
+						} else {
+							// empty element.
+						}
+					}
+				}
+			}
+		}
 	}
 
 
@@ -435,16 +505,16 @@ class ParserDom {
 	 * 支援 PHP Simple Dom 的习惯用法
 	 * for supporting usage of PHP Simple DOM Parser
 	 *
+	 * @param string $filepath
 	 * @param boolean $strip
 	 * @return string
 	 */
-	public function save($strip = true) {
-		if ($strip) {
-			$this->strip_html_container($this->node);
-			return $this->node->saveHTML();
-		} else {
-			return $this->node->saveHTML();
-		}
+	public function save($filepath = '', $strip = true) {
+		// strip <html><body>
+		if ($strip) $this->strip_html_container($this->node);
+		$ret = $this->node->saveHTML();
+		if ($filepath !== '') file_put_contents($filepath, $ret, LOCK_EX);
+		return $ret;
 	}
 	/**
 	 * 去除因 loadHTML() 自行添加的外部HTML容器
@@ -477,9 +547,32 @@ class ParserDom {
 				return $this->innerHtml();
 			case 'plaintext':
 				return $this->getPlainText();
+			default:
+				return $this->getAttr($name);
 		}
 	}
-
+	/**
+	 * Magic methods - for supporting usage of PHP Simple Dom Parser
+	 * 支援 PHP Simple Dom 的习惯用法
+	 *
+	 * @param string $name
+	 * @return string
+	 */
+	function __set($name, $value) {
+		switch ($name) {
+			case 'outertext':
+				$this->outerHtml($value);
+				break;
+			case 'innertext':
+				$this->innerHtml($value);
+				break;
+			case 'plaintext':
+				$this->getPlainText($value);
+				break;
+			default:
+				$this->setAttr($name, $value);
+		}
+	}
 }
 
 ?>
