@@ -484,7 +484,15 @@ class ParserDom {
 	private function getParent($node) {
 		return $node->parentNode;
 	}
-
+	
+	/**
+	 * 获取Tag名
+	 *
+	 * @return string
+	 */
+	public function getTag() {
+		return $this->node->nodeName;
+	}
 	/**
 	 * @codeCoverageIgnore
 	 * 释放内存
@@ -547,6 +555,8 @@ class ParserDom {
 				return $this->innerHtml();
 			case 'plaintext':
 				return $this->getPlainText();
+			case 'tag':
+				return $this->getTag();
 			default:
 				return $this->getAttr($name);
 		}
@@ -568,6 +578,8 @@ class ParserDom {
 				break;
 			case 'plaintext':
 				$this->getPlainText($value);
+				break;
+			case 'tag':
 				break;
 			default:
 				$this->setAttr($name, $value);
