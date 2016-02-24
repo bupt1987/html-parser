@@ -170,12 +170,19 @@ class ParserDom {
 	 */
 	public function innerHtml($value = null) {
 		if ($value == null) {
-			$innerHTML = "";
-			$children = $this->node->childNodes;
-			foreach ($children as $child) {
-				$innerHTML .= $this->node->ownerDocument->saveHTML($child) ?: '';
+			if ( !is_null($value) ) {
+				// give a empty string, you want me destory this element!
+				for ($x = $this->node->childNodes->length-1; $x >= 0; $x--) {
+					$this->node->removeChild($this->node->childNodes->item($x));
+				}
+			} else {
+				$innerHTML = "";
+				$children = $this->node->childNodes;
+				foreach ($children as $child) {
+					$innerHTML .= $this->node->ownerDocument->saveHTML($child) ?: '';
+				}
+				return $innerHTML;
 			}
-			return $innerHTML;
 		} else {
 			// Original code by Keyvan Minoukadeh <keyvan@keyvan.net>,
 			// integrated by Shinbon Lin.
@@ -215,10 +222,21 @@ class ParserDom {
 	 */
 	public function outerHtml($value = null) {
 		if ($value == null) {
-			$doc = new \DOMDocument();
-			$doc->appendChild($doc->importNode($this->node, true));
-			return $doc->saveHTML($doc);
+			if ( !is_null($value) ) {
+				// give a empty string, you want me destory this element!
+				$parentNode = $this->getParent($this->node);
+				for ($x = $parentNode->childNodes->length-1; $x >= 0; $x--) {
+					if ($this->node->isSameNode($parentNode->childNodes->item($x))) {
+						$parentNode->removeChild($parentNode->childNodes->item($x));
+					}
+				}
+			} else {
+				$doc = new \DOMDocument();
+				$doc->appendChild($doc->importNode($this->node, true));
+				return $doc->saveHTML($doc);
+			}
 		} else {
+
 			$parentNode = $this->getParent($this->node);
 			for ($x = $parentNode->childNodes->length-1; $x >= 0; $x--) {
 				if ($this->node->isSameNode($parentNode->childNodes->item($x))) {
