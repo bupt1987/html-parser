@@ -11,7 +11,7 @@ PHP DOM extension requires the libxml PHP extension. This means that passing in 
 ```php
 $html = '<div>
 test this library! <a href="https://github.com/shinbonlin">PHP DOM HTML Parser</a>
-</div><div class="example">test string!</div>
+</div><div class="example">test string!</div>';
 ```
 
 if you use Namespace
