@@ -516,7 +516,7 @@ class ParserDom {
 	}
 	/**
 	 * @codeCoverageIgnore
-	 * 释放内存
+	 * 释放内存 Automatically free memory
 	 *
 	 * @param $node
 	 */
@@ -527,6 +527,13 @@ class ParserDom {
 			}
 		}
 		unset($node);
+	}
+	/**
+	 * Manually free memory
+	 */
+
+	public function clear() {
+		$this->clearNode($this->node);
 	}
 	/**
 	 * 将处理后的Dom输出
