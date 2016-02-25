@@ -243,7 +243,6 @@ class ParserDom {
 					$f = $parentNode->ownerDocument->createDocumentFragment();
 					$result = @$f->appendXML($value);
 					if ($result) {
-						echo '1****************1';
 						if ($parentNode->hasChildNodes()) {
 							$parentNode->replaceChild($f, $parentNode->childNodes->item($x));
 						}
