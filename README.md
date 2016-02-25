@@ -248,6 +248,12 @@ Dumps the internal DOM tree back into a file
 $html_dom->save('result.htm');
 ```
 
+## Free memory
+
+Script will free memory automatically, however, if you would like to do it manually
+```php 
+$html_dom->clear();
+```
 
 ## Extension
 
