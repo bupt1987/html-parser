@@ -43,6 +43,27 @@ class ParserDom {
 	}
 
 	/**
+	 * 初始化的时候可以不用传入html，后面可以多次使用
+	 * @param null $node
+	 * @throws \Exception
+	 */
+	public function load($node = null)
+	{
+		if ($node instanceof \DOMNode) {
+			$this->node = $node;
+		} else {
+			$dom = new \DOMDocument();
+			$dom->preserveWhiteSpace = false;
+			$dom->strictErrorChecking = false;
+			if (@$dom->loadHTML($node)) {
+				$this->node = $dom;
+			} else {
+				throw new \Exception('load html error');
+			}
+		}
+	}
+
+	/**
 	 * @codeCoverageIgnore
 	 */
 	public function __destruct() {
@@ -424,6 +445,10 @@ class ParserDom {
 				return $this->innerHtml();
 			case 'plaintext':
 				return $this->getPlainText();
+			case 'href':
+				return $this->getAttr("href");
+			case 'src':
+				return $this->getAttr("src");
 
 		}
 	}
