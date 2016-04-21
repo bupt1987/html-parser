@@ -85,13 +85,6 @@ class ParserDom {
 	}
 
 	/**
-	 * @codeCoverageIgnore
-	 */
-	public function __destruct() {
-		$this->clearNode($this->node);
-	}
-
-	/**
 	 * 深度优先查询
 	 *
 	 * @param string $selector
@@ -376,21 +369,6 @@ class ParserDom {
 	 */
 	private function getParent($node) {
 		return $node->parentNode;
-	}
-
-	/**
-	 * @codeCoverageIgnore
-	 * 释放内存
-	 *
-	 * @param $node
-	 */
-	private function clearNode(&$node) {
-		if (!empty($node->childNodes)) {
-			foreach ($node->childNodes as $child) {
-				$this->clearNode($child);
-			}
-		}
-		unset($node);
 	}
 
 }
