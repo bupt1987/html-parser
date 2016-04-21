@@ -19,20 +19,20 @@ class ParserDom {
 	/**
 	 * @var array
 	 */
-	private $_lFind = array();
+	private $_lFind = [];
 
 	/**
 	 * @param \DOMNode|string $node
 	 * @throws \Exception
 	 */
-	public function __construct($node = null) {
-		if ($node !== null) {
+	public function __construct($node = NULL) {
+		if ($node !== NULL) {
 			if ($node instanceof \DOMNode) {
 				$this->node = $node;
 			} else {
 				$dom = new \DOMDocument();
-				$dom->preserveWhiteSpace = false;
-				$dom->strictErrorChecking = false;
+				$dom->preserveWhiteSpace = FALSE;
+				$dom->strictErrorChecking = FALSE;
 				if (@$dom->loadHTML($node)) {
 					$this->node = $dom;
 				} else {
@@ -47,19 +47,40 @@ class ParserDom {
 	 * @param null $node
 	 * @throws \Exception
 	 */
-	public function load($node = null)
-	{
+	public function load($node = NULL) {
 		if ($node instanceof \DOMNode) {
 			$this->node = $node;
 		} else {
 			$dom = new \DOMDocument();
-			$dom->preserveWhiteSpace = false;
-			$dom->strictErrorChecking = false;
+			$dom->preserveWhiteSpace = FALSE;
+			$dom->strictErrorChecking = FALSE;
 			if (@$dom->loadHTML($node)) {
 				$this->node = $dom;
 			} else {
 				throw new \Exception('load html error');
 			}
+		}
+	}
+
+	/**
+	 * @codeCoverageIgnore
+	 * @param string $name
+	 * @return mixed
+	 */
+	function __get($name) {
+		switch ($name) {
+			case 'outertext':
+				return $this->outerHtml();
+			case 'innertext':
+				return $this->innerHtml();
+			case 'plaintext':
+				return $this->getPlainText();
+			case 'href':
+				return $this->getAttr("href");
+			case 'src':
+				return $this->getAttr("src");
+			default:
+				return NULL;
 		}
 	}
 
@@ -71,100 +92,36 @@ class ParserDom {
 	}
 
 	/**
-	 * 广度优先查询
-	 *
-	 * @param string $selector
-	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
-	 * @return ParserDom|ParserDom[]
-	 */
-	/*public function findBreadthFirst($selector, $idx = null) {
-		if (empty($this->node->childNodes)) {
-			return false;
-		}
-		$selectors = $this->parse_selector($selector);
-		if (($count = count($selectors)) === 0) {
-			return false;
-		}
-		$found = array();
-		for ($c = 0; $c < $count; $c++) {
-			if (($level = count($selectors [$c])) === 0) {
-				return false;
-			}
-			$need_to_search = iterator_to_array($this->node->childNodes);
-			$search_level = 1;
-			while (!empty($need_to_search)) {
-				$temp = array();
-				foreach ($need_to_search as $search) {
-					if ($search_level >= $level) {
-						$rs = $this->seek($search, $selectors [$c], $level - 1);
-						if ($rs !== false && $idx !== null) {
-							if ($idx == count($found)) {
-								return new self($rs);
-							} else {
-								$found[] = new self($rs);
-							}
-						} elseif ($rs !== false) {
-							$found[] = new self($rs);
-						}
-					}
-					$temp[] = $search;
-					array_shift($need_to_search);
-				}
-				foreach ($temp as $temp_val) {
-					if (!empty($temp_val->childNodes)) {
-						foreach ($temp_val->childNodes as $val) {
-							$need_to_search[] = $val;
-						}
-					}
-				}
-				$search_level++;
-			}
-		}
-		if ($idx !== null) {
-			if ($idx < 0) {
-				$idx = count($found) + $idx;
-			}
-			if (isset($found[$idx])) {
-				return $found[$idx];
-			} else {
-				return false;
-			}
-		}
-		return $found;
-	}*/
-
-
-	/**
 	 * 深度优先查询
 	 *
 	 * @param string $selector
 	 * @param number $idx 找第几个,从0开始计算，null 表示都返回, 负数表示倒数第几个
 	 * @return self|self[]
 	 */
-	public function find($selector, $idx = null) {
+	public function find($selector, $idx = NULL) {
 		if (empty($this->node->childNodes)) {
-			return false;
+			return FALSE;
 		}
 		$selectors = $this->parse_selector($selector);
 		if (($count = count($selectors)) === 0) {
-			return false;
+			return FALSE;
 		}
 		for ($c = 0; $c < $count; $c++) {
 			if (($level = count($selectors [$c])) === 0) {
-				return false;
+				return FALSE;
 			}
 			$this->search($this->node, $idx, $selectors [$c], $level);
 		}
 		$found = $this->_lFind;
-		$this->_lFind = array();
-		if ($idx !== null) {
+		$this->_lFind = [];
+		if ($idx !== NULL) {
 			if ($idx < 0) {
 				$idx = count($found) + $idx;
 			}
 			if (isset($found[$idx])) {
 				return $found[$idx];
 			} else {
-				return false;
+				return FALSE;
 			}
 		}
 		return $found;
@@ -198,7 +155,7 @@ class ParserDom {
 	 */
 	public function outerHtml() {
 		$doc = new \DOMDocument();
-		$doc->appendChild($doc->importNode($this->node, true));
+		$doc->appendChild($doc->importNode($this->node, TRUE));
 		return $doc->saveHTML($doc);
 	}
 
@@ -214,7 +171,7 @@ class ParserDom {
 		if (isset($oAttr)) {
 			return $oAttr->nodeValue;
 		}
-		return null;
+		return NULL;
 	}
 
 	/**
@@ -243,7 +200,7 @@ class ParserDom {
 				}
 				return preg_match("/" . $pattern . "/i", $value);
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -255,15 +212,15 @@ class ParserDom {
 	private function parse_selector($selector_string) {
 		$pattern = '/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-:]+)(?:([!*^$]?=)["\']?(.*?)["\']?)?\])?([\/, ]+)/is';
 		preg_match_all($pattern, trim($selector_string) . ' ', $matches, PREG_SET_ORDER);
-		$selectors = array();
-		$result = array();
+		$selectors = [];
+		$result = [];
 		foreach ($matches as $m) {
 			$m [0] = trim($m [0]);
 			if ($m [0] === '' || $m [0] === '/' || $m [0] === '//')
 				continue;
 			if ($m [1] === 'tbody')
 				continue;
-			list ($tag, $key, $val, $exp, $no_key) = array($m [1], null, null, '=', false);
+			list ($tag, $key, $val, $exp, $no_key) = [$m [1], NULL, NULL, '=', FALSE];
 			if (!empty ($m [2])) {
 				$key = 'id';
 				$val = $m [2];
@@ -287,12 +244,12 @@ class ParserDom {
 			// elements that do NOT have the specified attribute
 			if (isset ($key [0]) && $key [0] === '!') {
 				$key = substr($key, 1);
-				$no_key = true;
+				$no_key = TRUE;
 			}
-			$result [] = array($tag, $key, $val, $exp, $no_key);
+			$result [] = [$tag, $key, $val, $exp, $no_key];
 			if (trim($m [7]) === ',') {
 				$selectors [] = $result;
-				$result = array();
+				$result = [];
 			}
 		}
 		if (count($result) > 0) {
@@ -314,25 +271,25 @@ class ParserDom {
 	private function search(&$search, $idx, $selectors, $level, $search_level = 0) {
 		if ($search_level >= $level) {
 			$rs = $this->seek($search, $selectors, $level - 1);
-			if ($rs !== false && $idx !== null) {
+			if ($rs !== FALSE && $idx !== NULL) {
 				if ($idx == count($this->_lFind)) {
 					$this->_lFind[] = new self($rs);
-					return true;
+					return TRUE;
 				} else {
 					$this->_lFind[] = new self($rs);
 				}
-			} elseif ($rs !== false) {
+			} elseif ($rs !== FALSE) {
 				$this->_lFind[] = new self($rs);
 			}
 		}
 		if (!empty($search->childNodes)) {
 			foreach ($search->childNodes as $val) {
 				if ($this->search($val, $idx, $selectors, $level, $search_level + 1)) {
-					return true;
+					return TRUE;
 				}
 			}
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -355,24 +312,24 @@ class ParserDom {
 	 */
 	private function seek($search, $selectors, $current) {
 		if (!($search instanceof \DOMElement)) {
-			return false;
+			return FALSE;
 		}
 		list ($tag, $key, $val, $exp, $no_key) = $selectors [$current];
-		$pass = true;
+		$pass = TRUE;
 		if ($tag === '*' && !$key) {
 			exit('tag为*时，key不能为空');
 		}
 		if ($tag && $tag != $search->tagName && $tag !== '*') {
-			$pass = false;
+			$pass = FALSE;
 		}
 		if ($pass && $key) {
 			if ($no_key) {
 				if ($search->hasAttribute($key)) {
-					$pass = false;
+					$pass = FALSE;
 				}
 			} else {
 				if ($key != "plaintext" && !$search->hasAttribute($key)) {
-					$pass = false;
+					$pass = FALSE;
 				}
 			}
 		}
@@ -394,7 +351,7 @@ class ParserDom {
 				}
 			}
 			if (!$check) {
-				$pass = false;
+				$pass = FALSE;
 			}
 		}
 		if ($pass) {
@@ -404,10 +361,10 @@ class ParserDom {
 			} elseif ($this->seek($this->getParent($search), $selectors, $current)) {
 				return $search;
 			} else {
-				return false;
+				return FALSE;
 			}
 		} else {
-			return false;
+			return FALSE;
 		}
 	}
 
@@ -435,23 +392,5 @@ class ParserDom {
 		}
 		unset($node);
 	}
-	function __get($name)
-	{
-		switch ($name)
-		{
-			case 'outertext':
-				return $this->outerHtml();
-			case 'innertext':
-				return $this->innerHtml();
-			case 'plaintext':
-				return $this->getPlainText();
-			case 'href':
-				return $this->getAttr("href");
-			case 'src':
-				return $this->getAttr("src");
 
-		}
-	}
 }
-
-?>
