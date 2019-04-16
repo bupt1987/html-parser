@@ -203,7 +203,7 @@ class ParserDom {
 	 * @return array
 	 */
 	private function parse_selector($selector_string) {
-		$pattern = '/([\w-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w-:]+)(?:([!*^$]?=)["\']?(.*?)["\']?)?\])?([\/, ]+)/is';
+		$pattern = '/([\w\-:\*]*)(?:\#([\w-]+)|\.([\w-]+))?(?:\[@?(!?[\w\-:]+)(?:([!*^$]?=)["\']?(.*?)["\']?)?\])?([\/, ]+)/is';
 		preg_match_all($pattern, trim($selector_string) . ' ', $matches, PREG_SET_ORDER);
 		$selectors = [];
 		$result = [];
